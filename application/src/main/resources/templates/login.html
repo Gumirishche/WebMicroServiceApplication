@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        input {
+            margin: 10px 0;
+            padding: 10px;
+            width: 200px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #3e8e41;
+        }
+    </style>
+</head>
+<body>
+<h2>Вход</h2>
+<form id="loginForm">
+    <input type="text" id="login" placeholder="Логин" required>
+    <input type="password" id="password" placeholder="Пароль" required>
+    <button id="signIn" type="button">Вход</button>
+    <button id="register" type="button">Регистрация</button>
+</form>
+<script>
+    $(document).ready(function () {
+        // Функция для обработки кнопки "Вход"
+        $('#signIn').click(function () {
+            const user = {
+                login: $('#login').val(),
+                password: $('#password').val()
+            };
+
+            // Отправка POST-запроса для входа
+            $.ajax({
+                url: 'http://localhost:8080/api/auth/login', // URL вашего API
+                method: 'POST',
+                contentType: 'application/json', // Указываем тип контента
+                data: JSON.stringify(user), // Преобразуем объект в JSON
+                success: function (data) {
+                    // Сохраните токен в localStorage, если он предоставляется
+                    localStorage.setItem('token', data.id); // Замените на фактическое имя токена
+                    console.log('Токен:', data.id); // Вывод токена в консоль
+                    window.location.href = '/home'; // перенаправить на страницу /home
+                },
+                error: function (error) {
+                    console.error('Ошибка при входе', error);
+                }
+            });
+        });
+
+        // Функция для обработки кнопки "Регистрация"
+        $('#register').click(function () {
+            const user = {
+                login: $('#login').val(),
+                password: $('#password').val()
+            };
+
+            // Отправка POST-запроса для регистрации
+            $.ajax({
+                url: 'http://localhost:8080/api/auth/register', // URL для регистрации
+                method: 'POST',
+                contentType: 'application/json', // Указываем тип контента
+                data: JSON.stringify(user), // Преобразуем объект в JSON
+                success: function (data) {
+                    alert('Регистрация успешна!'); // Сообщение об успешной регистрации
+
+                    // Автоматический вход после регистрации
+                    $.ajax({
+                        url: 'http://localhost:8080/api/auth/login', // URL вашего API
+                        method: 'POST',
+                        contentType: 'application/json', // Указываем тип контента
+                        data: JSON.stringify(user), // Преобразуем объект в JSON
+                        success: function (data) {
+                            // Сохраните токен в localStorage, если он предоставляется
+                            localStorage.setItem('token', data.id); // Замените на фактическое имя токена
+                            console.log('Токен:', data.id); // Вывод токена в консоль
+                            window.location.href = '/home'; // перенаправить на страницу /home
+                        },
+                        error: function (error) {
+                            console.error('Ошибка при автоматическом входе', error);
+                        }
+                    });
+                },
+                error: function (error) {
+                    console.error('Ошибка при регистрации', error);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

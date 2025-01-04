@@ -1,0 +1,148 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Книги</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+        }
+        .container {
+          max-width: 800px;
+          margin: 40px auto;
+          text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            /* Отступ сверху для таблиц */
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .button {
+          background-color: #4CAF50;
+          color: #fff;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+        }
+        .button:hover {
+          background-color: #3e8e41;
+        }
+        .form-group {
+          margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Добавить новую книгу</h2>
+    <div class="form-group">
+        <input type="text" id="bookName" placeholder="Название" required>
+    </div>
+    <div class="form-group">
+        <input type="text" id="bookAuthor" placeholder="Автор" required>
+    </div>
+    <div class="form-group">
+        <input type="text" id="bookGenre" placeholder="Жанр" required>
+    </div>
+    <div class="form-group">
+        <input type="number" id="bookPrice" placeholder="Цена" required>
+    </div>
+    <button id="createBook" class="button">Создать книгу</button>
+
+    <button id="goToOrder" class="button" onclick="window.location.href='/order'">Заказ книг</button>
+
+    <h2>Список книг</h2>
+    <button id="loadBooks" class="button">Загрузить книги</button>
+    <table id="booksTable">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Автор</th>
+            <th>Жанр</th>
+            <th>Цена</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Здесь будут размещены строки с книгами -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Функция для загрузки книг
+        function loadBooks() {
+            $.ajax({
+                url: 'http://localhost:8080/api/book', // URL вашего API
+                method: 'GET',
+                dataType: 'json', // Указываем, что ожидаем JSON
+                success: function(data) {
+                    let tableBody = ''; // Строки таблицы будут сохраняться здесь
+                    data.forEach(book => {
+                        // Создаем строку для каждой книги
+                        tableBody += `<tr>
+                            <td>${book.id}</td>
+                            <td>${book.name}</td>
+                            <td>${book.author}</td>
+                            <td>${book.genre}</td>
+                            <td>${book.price}</td>
+                        </tr>`;
+                    });
+                    $('#booksTable tbody').html(tableBody); // Обновляем тело таблицы
+                },
+                error: function(error) {
+                    console.error('Ошибка при получении книг', error);
+                }
+            });
+        }
+
+        // Обработка клика по кнопке "Создать книгу"
+        $('#createBook').click(function() {
+            const newBook = {
+                name: $('#bookName').val(),
+                author: $('#bookAuthor').val(),
+                genre: $('#bookGenre').val(),
+                price: $('#bookPrice').val(),
+            };
+
+            // Отправка POST-запроса для создания книги
+            $.ajax({
+                url: 'http://localhost:8080/api/book', // URL вашего API
+                method: 'POST',
+                contentType: 'application/json', // Указываем тип контента
+                data: JSON.stringify(newBook), // Преобразуем объект в JSON
+                success: function() {
+                    alert('Книга успешно создана!');
+                    loadBooks(); // Перезагружаем книги после успешного создания
+                },
+                error: function(error) {
+                    console.error('Ошибка при создании книги', error);
+                }
+            });
+        });
+
+        // Обработка клика по кнопке "Загрузить книги"
+        $('#loadBooks').click(function() {
+            loadBooks();
+        });
+    });
+</script>
+</body>
+</html>
